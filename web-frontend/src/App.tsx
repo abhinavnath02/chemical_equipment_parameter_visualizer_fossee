@@ -120,9 +120,9 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-black flex">
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="border-b border-zinc-800 bg-black">
+        <header className="border-b border-zinc-800 bg-black relative z-50">
           <div className="px-6 py-4 flex justify-between items-center">
             <div>
               <h1 className="text-xl font-bold text-white">
@@ -141,12 +141,21 @@ function Dashboard() {
               >
                 Logout
               </button>
+              <button
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                className="text-gray-400 hover:text-white transition-colors p-2"
+                title={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
             </div>
           </div>
         </header>
 
         {/* Main Content Area */}
-        <main className="flex-1 overflow-y-auto">
+        <main className={`flex-1 overflow-y-auto transition-all duration-300 ${isSidebarOpen ? 'pr-72' : 'pr-0'}`}>
           <div className="max-w-7xl mx-auto px-6 py-6">
             {/* Upload Section - Full Width */}
             <div className="mb-6">
@@ -200,11 +209,6 @@ function Dashboard() {
             {/* Charts Section */}
             {result && (
               <div className="space-y-6 mb-6">
-                {/* Data Table */}
-                {result.equipment_data && (
-                  <DataTable equipmentData={result.equipment_data} />
-                )}
-
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <ParameterBarChart
                     avgFlowrate={result.avg_flowrate}
@@ -219,6 +223,11 @@ function Dashboard() {
 
                 {result.equipment_data && (
                   <EquipmentLineChart equipmentData={result.equipment_data} />
+                )}
+
+                {/* Data Table */}
+                {result.equipment_data && (
+                  <DataTable equipmentData={result.equipment_data} />
                 )}
               </div>
             )}

@@ -13,10 +13,11 @@ export default function DataTable({ equipmentData }: DataTableProps) {
     <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
       <div className="p-4 border-b border-zinc-800">
         <h3 className="text-lg font-semibold text-white">Equipment Data</h3>
+        <p className="text-xs text-gray-400 mt-1">{equipmentData.length} items</p>
       </div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto max-h-96 overflow-y-auto">
         <table className="w-full text-sm">
-          <thead className="bg-zinc-800 border-b border-zinc-700">
+          <thead className="bg-zinc-800 border-b border-zinc-700 sticky top-0">
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
                 Equipment Name
