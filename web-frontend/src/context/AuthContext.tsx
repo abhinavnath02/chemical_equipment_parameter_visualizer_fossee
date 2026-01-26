@@ -139,7 +139,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('accessToken', data.access)
     localStorage.setItem('refreshToken', data.refresh)
 
-    await fetchUser()
+    // Fetch user profile with the new token
+    const userResponse = await fetch(`${API_BASE}/auth/user/`, {
+      headers: {
+        'Authorization': `Bearer ${data.access}`,
+      },
+    })
+
+    if (userResponse.ok) {
+      const userData = await userResponse.json()
+      setUser(userData)
+    } else {
+      throw new Error('Failed to fetch user profile')
+    }
   }
 
   const register = async (username: string, email: string, password: string, password2: string) => {

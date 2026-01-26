@@ -118,11 +118,19 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-black flex">
+    <div className="h-screen bg-black flex relative overflow-hidden">
+      {/* Rainbow gradient border */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-gradient-to-br from-red-500/15 to-transparent blur-3xl"></div>
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-blue-500/15 to-transparent blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-gradient-to-tr from-purple-500/15 to-transparent blur-3xl"></div>
+        <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-to-tl from-green-500/15 to-transparent blur-3xl"></div>
+      </div>
+
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col relative z-10 min-w-0">
         {/* Header */}
-        <header className="border-b border-zinc-800 bg-black relative z-50">
+        <header className="border-b border-zinc-800 bg-black flex-shrink-0">
           <div className="px-6 py-4 flex justify-between items-center">
             <div>
               <h1 className="text-xl font-bold text-white">
@@ -141,21 +149,12 @@ function Dashboard() {
               >
                 Logout
               </button>
-              <button
-                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                className="text-gray-400 hover:text-white transition-colors p-2"
-                title={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
             </div>
           </div>
         </header>
 
         {/* Main Content Area */}
-        <main className={`flex-1 overflow-y-auto transition-all duration-300 ${isSidebarOpen ? 'pr-72' : 'pr-0'}`}>
+        <main className="flex-1 overflow-y-auto">
           <div className="max-w-7xl mx-auto px-6 py-6">
             {/* Upload Section - Full Width */}
             <div className="mb-6">
