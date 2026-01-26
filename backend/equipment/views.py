@@ -1,12 +1,15 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse
 from .models import Dataset
 from .utils import analyze_csv
 from .pdf_generator import generate_pdf_report
 
 class UploadCSVView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request):
         file = request.FILES.get('file')
 
@@ -35,6 +38,8 @@ class UploadCSVView(APIView):
         return Response(summary, status=201)
 
 class HistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         datasets = Dataset.objects.order_by('-uploaded_at')[:5]
         data = [
@@ -48,6 +53,8 @@ class HistoryView(APIView):
         return Response(data)
 
 class GeneratePDFView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def post(self, request):
         data = request.data
         

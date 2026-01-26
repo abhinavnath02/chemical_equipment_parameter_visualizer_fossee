@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
+import { AuthProvider, useAuth } from './context/AuthContext'
 import { registerChartComponents } from './utils/chartConfig'
+import AuthPage from './components/AuthPage'
 import FileUpload from './components/FileUpload'
 import UploadHistory from './components/UploadHistory'
 import DataTable from './components/DataTable'
@@ -14,7 +16,8 @@ registerChartComponents()
 
 const API_BASE = 'http://127.0.0.1:8000/api'
 
-function App() {
+function Dashboard() {
+  const { accessToken, logout, user } = useAuth()
   const [file, setFile] = useState<File | null>(null)
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
@@ -48,6 +51,9 @@ function App() {
     try {
       const response = await fetch(`${API_BASE}/upload/`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
         body: formData,
       })
 
@@ -67,7 +73,11 @@ function App() {
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch(`${API_BASE}/history/`)
+      const response = await fetch(`${API_BASE}/history/`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      })
       const data = await response.json()
       setHistory(data)
     } catch (err) {
@@ -83,6 +93,7 @@ function App() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
         },
         body: JSON.stringify(result),
       })
@@ -112,11 +123,25 @@ function App() {
       <div className="flex-1 flex flex-col">
         {/* Header */}
         <header className="border-b border-zinc-800 bg-black">
-          <div className="px-6 py-4">
-            <h1 className="text-xl font-bold text-white">
-              Chemical Equipment Parameter Visualizer
-            </h1>
-            <p className="text-gray-400 text-xs mt-1">Analyze and visualize equipment data</p>
+          <div className="px-6 py-4 flex justify-between items-center">
+            <div>
+              <h1 className="text-xl font-bold text-white">
+                Chemical Equipment Parameter Visualizer
+              </h1>
+              <p className="text-gray-400 text-xs mt-1">Analyze and visualize equipment data</p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <p className="text-sm text-white">{user?.username}</p>
+                <p className="text-xs text-gray-400">{user?.email}</p>
+              </div>
+              <button
+                onClick={logout}
+                className="bg-zinc-800 border border-zinc-700 text-white px-4 py-2 rounded-lg hover:bg-zinc-700 transition-colors text-sm font-medium"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </header>
 
@@ -215,4 +240,26 @@ function App() {
   )
 }
 
-export default App
+function App() {
+  const { isAuthenticated, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-white text-xl">Loading...</div>
+      </div>
+    )
+  }
+
+  return isAuthenticated ? <Dashboard /> : <AuthPage />
+}
+
+function AppWithAuth() {
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  )
+}
+
+export default AppWithAuth
