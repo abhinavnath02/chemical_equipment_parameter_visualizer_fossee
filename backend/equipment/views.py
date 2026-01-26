@@ -1,8 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.http import HttpResponse
 from .models import Dataset
 from .utils import analyze_csv
+from .pdf_generator import generate_pdf_report
 
 class UploadCSVView(APIView):
     def post(self, request):
@@ -44,3 +46,20 @@ class HistoryView(APIView):
             for d in datasets
         ]
         return Response(data)
+
+class GeneratePDFView(APIView):
+    def post(self, request):
+        data = request.data
+        
+        if not data:
+            return Response({"error": "No data provided"}, status=400)
+        
+        try:
+            pdf_buffer = generate_pdf_report(data)
+            
+            response = HttpResponse(pdf_buffer, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename="equipment_report_{data.get("total_equipment", "")}_items.pdf"'
+            
+            return response
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
