@@ -279,10 +279,13 @@ python main.py
 ## 📸 Screenshots
 
 ### Web Application
-- Modern dark theme interface
-- Responsive sidebar navigation
-- Interactive Chart.js visualizations
-- Rainbow gradient accents
+<img width="1919" height="906" alt="Screenshot 2026-01-27 150535" src="https://github.com/user-attachments/assets/620fd227-fac5-4cd1-b5f8-6f71607380b7" />
+<img width="1919" height="908" alt="Screenshot 2026-01-27 150548" src="https://github.com/user-attachments/assets/396d8fbd-eab3-42bf-8b7b-055d85bcf360" />
+<img width="1919" height="894" alt="Screenshot 2026-01-27 150605" src="https://github.com/user-attachments/assets/9f846c04-2667-40cd-b878-b1799828c074" />
+<img width="1919" height="911" alt="Screenshot 2026-01-27 150624" src="https://github.com/user-attachments/assets/73f9a13d-233d-4300-bde2-7e806942edce" />
+<img width="1919" height="917" alt="Screenshot 2026-01-27 150640" src="https://github.com/user-attachments/assets/b7b67c2c-d6bd-4bf5-b88d-992af99f6339" />
+<img width="1919" height="913" alt="Screenshot 2026-01-27 150658" src="https://github.com/user-attachments/assets/b77d6213-fcca-4a91-8ac8-fea33b931705" />
+
 
 ### Desktop Application
 - Native Qt widgets
