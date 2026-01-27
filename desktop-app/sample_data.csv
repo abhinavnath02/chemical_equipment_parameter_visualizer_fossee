@@ -1,0 +1,16 @@
+Equipment Name,Type,Flowrate,Pressure,Temperature
+Pump-001,Pump,150.5,10.2,45.3
+Reactor-001,Reactor,200.0,15.5,80.0
+Heat Exchanger-001,Heat Exchanger,180.0,12.0,65.5
+Compressor-001,Compressor,120.5,20.0,55.0
+Pump-002,Pump,165.0,11.5,48.0
+Reactor-002,Reactor,185.0,14.0,75.0
+Heat Exchanger-002,Heat Exchanger,175.5,11.8,62.0
+Pump-003,Pump,155.0,10.8,46.5
+Distillation Column-001,Distillation Column,220.0,18.5,95.0
+Compressor-002,Compressor,130.0,21.0,58.0
+Heat Exchanger-003,Heat Exchanger,190.0,12.5,68.0
+Reactor-003,Reactor,195.0,15.0,78.0
+Pump-004,Pump,160.0,11.0,47.0
+Mixer-001,Mixer,140.0,8.5,40.0
+Separator-001,Separator,175.0,13.0,70.0
