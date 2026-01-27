@@ -288,10 +288,11 @@ python main.py
 
 
 ### Desktop Application
-- Native Qt widgets
-- Matplotlib chart integration
-- File system dialogs
-- Fixed sidebar with history
+<img width="449" height="600" alt="Screenshot 2026-01-27 151022" src="https://github.com/user-attachments/assets/d7ae22fe-b657-4e30-9758-29dd49e01d1b" />
+<img width="1401" height="901" alt="Screenshot 2026-01-27 151045" src="https://github.com/user-attachments/assets/933b516b-83f0-4ced-8f88-528c3c71c631" />
+<img width="1396" height="894" alt="Screenshot 2026-01-27 151113" src="https://github.com/user-attachments/assets/01bc5559-9b0d-454e-84d0-b4b2e212e7c7" />
+<img width="1390" height="897" alt="Screenshot 2026-01-27 151124" src="https://github.com/user-attachments/assets/14e9a12f-2221-4488-ae18-1a95e00b4a52" />
+
 
 ## 🤝 Contributing
 
