@@ -10,9 +10,14 @@ interface ParameterDistributionChartProps {
     temperature: number
   }>
   parameter: 'flowrate' | 'pressure' | 'temperature'
+  thresholds?: {
+    flowrate: { min: number; max: number; critical_max: number }
+    pressure: { min: number; max: number; critical_max: number }
+    temperature: { min: number; max: number; critical_max: number }
+  }
 }
 
-export default function ParameterDistributionChart({ equipmentData, parameter }: ParameterDistributionChartProps) {
+export default function ParameterDistributionChart({ equipmentData, parameter, thresholds }: ParameterDistributionChartProps) {
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstance = useRef<Chart | null>(null)
 
@@ -53,6 +58,89 @@ export default function ParameterDistributionChart({ equipmentData, parameter }:
       temperature: 'Temperature Distribution'
     }
 
+    const annotations: any[] = []
+    if (thresholds) {
+      const paramThreshold = thresholds[parameter]
+      
+      // Helper function to find the bin index for a threshold value
+      const findBinPosition = (value: number) => {
+        if (value <= min) return -0.5
+        if (value >= max) return binCount - 0.5
+        
+        // Find which bin this value falls into
+        for (let i = 0; i < binCount; i++) {
+          const binStart = min + (i * binSize)
+          const binEnd = binStart + binSize
+          if (value >= binStart && value < binEnd) {
+            // Calculate position within the bin
+            const positionInBin = (value - binStart) / binSize
+            return i - 0.5 + positionInBin
+          }
+        }
+        return binCount - 0.5
+      }
+      
+      annotations.push(
+        {
+          type: 'line',
+          xMin: findBinPosition(paramThreshold.min),
+          xMax: findBinPosition(paramThreshold.min),
+          yMin: 0,
+          yMax: Math.max(...bins) * 1.1,
+          borderColor: 'rgba(34, 197, 94, 0.8)',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          label: {
+            display: true,
+            content: 'Min',
+            position: 'start',
+            backgroundColor: 'rgba(34, 197, 94, 0.8)',
+            color: '#fff',
+            font: { size: 10 },
+            yAdjust: -10
+          },
+        },
+        {
+          type: 'line',
+          xMin: findBinPosition(paramThreshold.max),
+          xMax: findBinPosition(paramThreshold.max),
+          yMin: 0,
+          yMax: Math.max(...bins) * 1.1,
+          borderColor: 'rgba(234, 179, 8, 0.8)',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          label: {
+            display: true,
+            content: 'Max',
+            position: 'start',
+            backgroundColor: 'rgba(234, 179, 8, 0.8)',
+            color: '#000',
+            font: { size: 10 },
+            yAdjust: -10
+          },
+        },
+        {
+          type: 'line',
+          xMin: findBinPosition(paramThreshold.critical_max),
+          xMax: findBinPosition(paramThreshold.critical_max),
+          yMin: 0,
+          yMax: Math.max(...bins) * 1.1,
+          borderColor: 'rgba(239, 68, 68, 0.8)',
+          borderWidth: 2,
+          borderDash: [5, 5],
+          label: {
+            display: true,
+            content: 'Critical',
+            position: 'start',
+            backgroundColor: 'rgba(239, 68, 68, 0.8)',
+            color: '#fff',
+            font: { size: 10 },
+            yAdjust: -10
+          },
+        }
+      )
+    }
+
     const config: any = {
       type: 'bar',
       data: {
@@ -82,7 +170,10 @@ export default function ParameterDistributionChart({ equipmentData, parameter }:
             callbacks: {
               label: (context) => `${context.parsed.y} equipment`
             }
-          }
+          },
+          annotation: annotations.length > 0 ? {
+            annotations
+          } : undefined
         },
         scales: {
           x: {
@@ -118,7 +209,7 @@ export default function ParameterDistributionChart({ equipmentData, parameter }:
         chartInstance.current.destroy()
       }
     }
-  }, [equipmentData, parameter])
+  }, [equipmentData, parameter, thresholds])
 
   return <canvas ref={chartRef} />
 }

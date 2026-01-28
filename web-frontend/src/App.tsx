@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { registerChartComponents } from './utils/chartConfig'
 import LandingPage from './components/LandingPage'
@@ -23,6 +23,7 @@ const API_BASE = 'http://127.0.0.1:8000/api'
 
 function Dashboard() {
   const { accessToken, logout, user } = useAuth()
+  const navigate = useNavigate()
   const [file, setFile] = useState<File | null>(null)
   const [result, setResult] = useState<AnalysisResult | null>(null)
   const [history, setHistory] = useState<HistoryItem[]>([])
@@ -173,11 +174,22 @@ function Dashboard() {
         {/* Header */}
         <header className="border-b border-zinc-800 bg-black flex-shrink-0">
           <div className="px-6 py-4 flex justify-between items-center">
-            <div>
-              <h1 className="text-xl font-bold text-white">
-                Chemical Equipment Parameter Visualizer
-              </h1>
-              <p className="text-gray-400 text-xs mt-1">Analyze and visualize equipment data</p>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/')}
+                className="text-gray-400 hover:text-white transition-colors"
+                title="Back to Home"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+              </button>
+              <div>
+                <h1 className="text-xl font-bold text-white">
+                  Chemical Equipment Parameter Visualizer
+                </h1>
+                <p className="text-gray-400 text-xs mt-1">Analyze and visualize equipment data</p>
+              </div>
             </div>
             <div className="flex items-center gap-4">
               <button
@@ -289,13 +301,13 @@ function Dashboard() {
                 {result.equipment_data && (
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4" style={{ height: '300px' }}>
-                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="flowrate" />
+                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="flowrate" thresholds={thresholds} />
                     </div>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4" style={{ height: '300px' }}>
-                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="pressure" />
+                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="pressure" thresholds={thresholds} />
                     </div>
                     <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4" style={{ height: '300px' }}>
-                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="temperature" />
+                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="temperature" thresholds={thresholds} />
                     </div>
                   </div>
                 )}

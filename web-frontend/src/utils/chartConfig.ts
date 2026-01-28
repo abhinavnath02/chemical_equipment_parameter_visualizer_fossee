@@ -10,6 +10,7 @@ import {
   Legend,
   ArcElement,
 } from 'chart.js'
+import annotationPlugin from 'chartjs-plugin-annotation'
 
 export function registerChartComponents() {
   ChartJS.register(
@@ -21,6 +22,7 @@ export function registerChartComponents() {
     ArcElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    annotationPlugin
   )
 }
