@@ -14,6 +14,7 @@ export interface AnalysisResult {
 }
 
 export interface HistoryItem {
+  id: number
   filename: string
   uploaded_at: string
   total_equipment: number

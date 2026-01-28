@@ -22,18 +22,23 @@ class UploadCSVView(APIView):
             return Response({"error": str(e)}, status=400)
 
         dataset = Dataset.objects.create(
+            user=request.user,
             filename=file.name,
             total_equipment=summary["total_equipment"],
             avg_flowrate=summary["avg_flowrate"],
             avg_pressure=summary["avg_pressure"],
-            avg_temperature=summary["avg_temperature"]
+            avg_temperature=summary["avg_temperature"],
+            equipment_by_type=summary["equipment_by_type"],
+            equipment_data=summary["equipment_data"]
         )
 
-        # keep only last 5
-        if Dataset.objects.count() > 5:
-            oldest = Dataset.objects.order_by('uploaded_at').first()
-            if oldest:
-                oldest.delete()
+        # Keep only last 5 uploads per user
+        user_datasets = Dataset.objects.filter(user=request.user).order_by('-uploaded_at')
+        if user_datasets.count() > 5:
+            # Delete oldest datasets beyond 5
+            datasets_to_delete = user_datasets[5:]
+            for ds in datasets_to_delete:
+                ds.delete()
 
         return Response(summary, status=201)
 
@@ -41,9 +46,10 @@ class HistoryView(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        datasets = Dataset.objects.order_by('-uploaded_at')[:5]
+        datasets = Dataset.objects.filter(user=request.user).order_by('-uploaded_at')[:5]
         data = [
             {
+                "id": d.id,
                 "filename": d.filename,
                 "uploaded_at": d.uploaded_at,
                 "total_equipment": d.total_equipment
@@ -51,6 +57,24 @@ class HistoryView(APIView):
             for d in datasets
         ]
         return Response(data)
+
+class DatasetDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, dataset_id):
+        try:
+            dataset = Dataset.objects.get(id=dataset_id, user=request.user)
+            data = {
+                "total_equipment": dataset.total_equipment,
+                "avg_flowrate": dataset.avg_flowrate,
+                "avg_pressure": dataset.avg_pressure,
+                "avg_temperature": dataset.avg_temperature,
+                "equipment_by_type": dataset.equipment_by_type,
+                "equipment_data": dataset.equipment_data
+            }
+            return Response(data)
+        except Dataset.DoesNotExist:
+            return Response({"error": "Dataset not found"}, status=404)
 
 class GeneratePDFView(APIView):
     permission_classes = [IsAuthenticated]

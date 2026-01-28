@@ -110,6 +110,21 @@ class APIClient:
         except Exception as e:
             return False, None, str(e)
 
+    def get_dataset(self, dataset_id: int) -> Tuple[bool, Optional[Dict], str]:
+        """Get specific dataset by ID"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/dataset/{dataset_id}/",
+                headers=self._get_headers()
+            )
+            
+            if response.status_code == 200:
+                return True, response.json(), "Success"
+            else:
+                return False, None, "Dataset not found"
+        except Exception as e:
+            return False, None, str(e)
+
     def generate_pdf(self, analysis_data: Dict) -> Tuple[bool, Optional[bytes], str]:
         """Generate PDF report"""
         try:

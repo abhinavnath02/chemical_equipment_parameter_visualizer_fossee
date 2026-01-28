@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { registerChartComponents } from './utils/chartConfig'
+import LandingPage from './components/LandingPage'
 import AuthPage from './components/AuthPage'
 import FileUpload from './components/FileUpload'
 import UploadHistory from './components/UploadHistory'
@@ -8,7 +10,10 @@ import DataTable from './components/DataTable'
 import ParameterBarChart from './components/charts/ParameterBarChart'
 import EquipmentDoughnutChart from './components/charts/EquipmentDoughnutChart'
 import EquipmentLineChart from './components/charts/EquipmentLineChart'
+import SafetyStatusChart from './components/charts/SafetyStatusChart'
+import ParameterDistributionChart from './components/charts/ParameterDistributionChart'
 import CSVFormatGuide from './components/CSVFormatGuide'
+import ThresholdSettings from './components/ThresholdSettings'
 import type { AnalysisResult, HistoryItem } from './types'
 import './App.css'
 
@@ -24,9 +29,20 @@ function Dashboard() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [thresholds, setThresholds] = useState({
+    flowrate: { min: 50, max: 500, critical_max: 600 },
+    pressure: { min: 100, max: 800, critical_max: 1000 },
+    temperature: { min: 50, max: 350, critical_max: 400 }
+  })
 
   useEffect(() => {
     fetchHistory()
+    // Load thresholds from localStorage
+    const saved = localStorage.getItem('safety_thresholds')
+    if (saved) {
+      setThresholds(JSON.parse(saved))
+    }
   }, [])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,6 +101,31 @@ function Dashboard() {
     }
   }
 
+  const handleHistoryClick = async (datasetId: number) => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const response = await fetch(`${API_BASE}/dataset/${datasetId}/`, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch dataset')
+      }
+      
+      const data = await response.json()
+      setResult(data)
+      setIsSidebarOpen(false) // Close sidebar on mobile after selection
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load dataset')
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleGeneratePDF = async () => {
     if (!result) return
 
@@ -139,6 +180,17 @@ function Dashboard() {
               <p className="text-gray-400 text-xs mt-1">Analyze and visualize equipment data</p>
             </div>
             <div className="flex items-center gap-4">
+              <button
+                onClick={() => setIsSettingsOpen(true)}
+                className="bg-zinc-800 border border-zinc-700 text-white px-4 py-2 rounded-lg hover:bg-zinc-700 transition-colors text-sm font-medium flex items-center gap-2"
+                title="Safety Threshold Settings"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Settings
+              </button>
               <div className="text-right">
                 <p className="text-sm text-white">{user?.username}</p>
                 <p className="text-xs text-gray-400">{user?.email}</p>
@@ -208,6 +260,7 @@ function Dashboard() {
             {/* Charts Section */}
             {result && (
               <div className="space-y-6 mb-6">
+                {/* Main Analytics Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <ParameterBarChart
                     avgFlowrate={result.avg_flowrate}
@@ -220,8 +273,31 @@ function Dashboard() {
                   )}
                 </div>
 
+                {/* Safety Status Chart */}
+                {result.equipment_data && (
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4" style={{ height: '400px' }}>
+                    <SafetyStatusChart equipmentData={result.equipment_data} thresholds={thresholds} />
+                  </div>
+                )}
+
+                {/* Equipment Trend Line Chart */}
                 {result.equipment_data && (
                   <EquipmentLineChart equipmentData={result.equipment_data} />
+                )}
+
+                {/* Parameter Distribution Histograms */}
+                {result.equipment_data && (
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4" style={{ height: '300px' }}>
+                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="flowrate" />
+                    </div>
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4" style={{ height: '300px' }}>
+                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="pressure" />
+                    </div>
+                    <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4" style={{ height: '300px' }}>
+                      <ParameterDistributionChart equipmentData={result.equipment_data} parameter="temperature" />
+                    </div>
+                  </div>
                 )}
 
                 {/* Data Table */}
@@ -241,8 +317,21 @@ function Dashboard() {
       <UploadHistory 
         history={history} 
         onRefresh={fetchHistory}
+        onHistoryClick={handleHistoryClick}
         isOpen={isSidebarOpen}
         onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+        equipmentData={result?.equipment_data}
+        thresholds={thresholds}
+      />
+
+      {/* Threshold Settings Modal */}
+      <ThresholdSettings
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onSave={(newThresholds) => {
+          setThresholds(newThresholds)
+          console.log('Thresholds updated:', newThresholds)
+        }}
       />
     </div>
   )
@@ -259,14 +348,25 @@ function App() {
     )
   }
 
-  return isAuthenticated ? <Dashboard /> : <AuthPage />
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route 
+        path="/app" 
+        element={isAuthenticated ? <Dashboard /> : <AuthPage />} 
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }
 
 function AppWithAuth() {
   return (
-    <AuthProvider>
-      <App />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <App />
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
