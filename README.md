@@ -279,16 +279,20 @@ python main.py
 ## 📸 Screenshots
 
 ### Web Application
-- Modern dark theme interface
-- Responsive sidebar navigation
-- Interactive Chart.js visualizations
-- Rainbow gradient accents
+<img width="1919" height="906" alt="Screenshot 2026-01-27 150535" src="https://github.com/user-attachments/assets/620fd227-fac5-4cd1-b5f8-6f71607380b7" />
+<img width="1919" height="908" alt="Screenshot 2026-01-27 150548" src="https://github.com/user-attachments/assets/396d8fbd-eab3-42bf-8b7b-055d85bcf360" />
+<img width="1919" height="894" alt="Screenshot 2026-01-27 150605" src="https://github.com/user-attachments/assets/9f846c04-2667-40cd-b878-b1799828c074" />
+<img width="1919" height="911" alt="Screenshot 2026-01-27 150624" src="https://github.com/user-attachments/assets/73f9a13d-233d-4300-bde2-7e806942edce" />
+<img width="1919" height="917" alt="Screenshot 2026-01-27 150640" src="https://github.com/user-attachments/assets/b7b67c2c-d6bd-4bf5-b88d-992af99f6339" />
+<img width="1919" height="913" alt="Screenshot 2026-01-27 150658" src="https://github.com/user-attachments/assets/b77d6213-fcca-4a91-8ac8-fea33b931705" />
+
 
 ### Desktop Application
-- Native Qt widgets
-- Matplotlib chart integration
-- File system dialogs
-- Fixed sidebar with history
+<img width="449" height="600" alt="Screenshot 2026-01-27 151022" src="https://github.com/user-attachments/assets/d7ae22fe-b657-4e30-9758-29dd49e01d1b" />
+<img width="1401" height="901" alt="Screenshot 2026-01-27 151045" src="https://github.com/user-attachments/assets/933b516b-83f0-4ced-8f88-528c3c71c631" />
+<img width="1396" height="894" alt="Screenshot 2026-01-27 151113" src="https://github.com/user-attachments/assets/01bc5559-9b0d-454e-84d0-b4b2e212e7c7" />
+<img width="1390" height="897" alt="Screenshot 2026-01-27 151124" src="https://github.com/user-attachments/assets/14e9a12f-2221-4488-ae18-1a95e00b4a52" />
+
 
 ## 🤝 Contributing
 
@@ -320,37 +324,5 @@ Developed as part of the Chemical Equipment Parameter Visualizer project.
 - Chart.js and matplotlib communities
 - Tailwind CSS team
 
----
-
-## 📋 Project Status
-
-### ✅ Completed
-- [x] Django backend with JWT authentication
-- [x] React web frontend with dark theme
-- [x] PyQt5 desktop application
-- [x] CSV upload and analysis
-- [x] Data visualization (charts)
-- [x] Summary statistics
-- [x] Upload history
-- [x] PDF report generation
-- [x] Password validation
-- [x] Email uniqueness check
-- [x] Custom scrollbars
-- [x] Rainbow gradient effects
-- [x] Fixed sidebar layouts
-
-### 🚀 Future Enhancements
-- [ ] Real-time collaboration
-- [ ] Export charts as images
-- [ ] Batch file processing
-- [ ] Advanced data filtering
-- [ ] Custom chart configurations
-- [ ] Mobile app
-- [ ] Data export to Excel
-- [ ] User preferences/settings
-- [ ] Email notifications
-- [ ] Advanced analytics
-
----
 
 **For detailed setup instructions, see individual README files in each directory.**
