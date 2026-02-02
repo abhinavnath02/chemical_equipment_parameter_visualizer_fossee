@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { Chart, TooltipItem } from 'chart.js'
+import { Chart } from 'chart.js'
+import type { TooltipItem } from 'chart.js'
 
 interface ParameterDistributionChartProps {
   equipmentData: Array<{
