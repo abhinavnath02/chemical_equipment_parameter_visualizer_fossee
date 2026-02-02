@@ -17,6 +17,7 @@ from api_client import APIClient
 from datetime import datetime
 from threshold_settings import ThresholdSettingsDialog
 from advanced_charts import SafetyAlertsWidget, SafetyStatusChart, ParameterDistributionChart
+from smart_insights import SmartInsightsWidget
 import os
 import json
 
@@ -97,6 +98,11 @@ class DashboardWindow(QMainWindow):
         self.summary_frame = self.create_summary_stats()
         self.summary_frame.hide()
         self.content_layout.addWidget(self.summary_frame)
+        
+        # Smart Insights (New Feature)
+        self.smart_insights = SmartInsightsWidget()
+        self.smart_insights.hide()
+        self.content_layout.addWidget(self.smart_insights)
         
         # Charts section (hidden initially)
         self.charts_frame = self.create_charts_section()
@@ -646,6 +652,13 @@ class DashboardWindow(QMainWindow):
         
         self.summary_frame.show()
         
+        # Update Smart Insights
+        smart_data = result.get('smart_insights', {})
+        if smart_data:
+            self.smart_insights.update_insights(smart_data)
+        else:
+            self.smart_insights.hide()
+
         # Get equipment data
         equipment_data = result.get('equipment_data', [])
         
