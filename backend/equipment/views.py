@@ -29,7 +29,8 @@ class UploadCSVView(APIView):
             avg_pressure=summary["avg_pressure"],
             avg_temperature=summary["avg_temperature"],
             equipment_by_type=summary["equipment_by_type"],
-            equipment_data=summary["equipment_data"]
+            equipment_data=summary["equipment_data"],
+            smart_insights=summary.get("smart_insights", {})
         )
 
         # Keep only last 5 uploads per user
@@ -70,7 +71,8 @@ class DatasetDetailView(APIView):
                 "avg_pressure": dataset.avg_pressure,
                 "avg_temperature": dataset.avg_temperature,
                 "equipment_by_type": dataset.equipment_by_type,
-                "equipment_data": dataset.equipment_data
+                "equipment_data": dataset.equipment_data,
+                "smart_insights": dataset.smart_insights
             }
             return Response(data)
         except Dataset.DoesNotExist:

@@ -11,6 +11,20 @@ export interface AnalysisResult {
     pressure: number
     temperature: number
   }>
+  smart_insights?: {
+    correlations: Array<{
+      pair: string
+      value: number
+      interpretation: string
+    }>
+    outliers: Array<{
+      equipment: string
+      parameter: string
+      value: number
+      mean: number
+      deviation: string
+    }>
+  }
 }
 
 export interface HistoryItem {

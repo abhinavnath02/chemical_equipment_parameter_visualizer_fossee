@@ -14,6 +14,25 @@ matplotlib.use('Agg')  # Use non-interactive backend
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Application Color Scheme (matching React frontend)
+COLORS = {
+    'primary': '#3b82f6',    # Blue
+    'secondary': '#a855f7',  # Purple
+    'accent': '#f97316',     # Orange
+    'success': '#22c55e',    # Green
+    'warning': '#f59e0b',    # Amber
+    'danger': '#ef4444',     # Red
+    'info': '#06b6d4',       # Cyan
+    'chart_sequence': [
+        '#3b82f6', # Blue
+        '#a855f7', # Purple
+        '#f97316', # Orange
+        '#10b981', # Emerald
+        '#ec4899', # Pink
+        '#eab308', # Yellow
+    ]
+}
+
 # Safety thresholds (configurable)
 THRESHOLDS = {
     'flowrate': {'min': 50, 'max': 500, 'critical_max': 600},
@@ -64,7 +83,8 @@ def check_safety_warnings(data):
 
 def create_bar_chart(data):
     """Create bar chart for average parameters"""
-    fig, ax = plt.subplots(figsize=(6, 4), facecolor='white')
+    # Increased figure size for better spacing
+    fig, ax = plt.subplots(figsize=(7, 5), facecolor='white')
     
     categories = ['Flowrate', 'Pressure', 'Temperature']
     values = [
@@ -72,27 +92,32 @@ def create_bar_chart(data):
         data.get('avg_pressure', 0),
         data.get('avg_temperature', 0)
     ]
-    colors_list = ['#ef4444', '#3b82f6', '#22c55e']
+    # Use app specific colors: Blue (Flow), Purple (Pressure), Orange (Temp)
+    colors_list = [COLORS['primary'], COLORS['secondary'], COLORS['accent']]
     
-    bars = ax.bar(categories, values, color=colors_list, alpha=0.8, edgecolor='black', linewidth=1.5)
+    bars = ax.bar(categories, values, color=colors_list, alpha=0.9, width=0.6)
     
     # Add value labels on bars
-    for bar, value in zip(bars, values):
+    for bar in bars:
         height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height,
-                f'{value:.1f}',
-                ha='center', va='bottom', fontweight='bold', fontsize=10)
+        ax.text(bar.get_x() + bar.get_width()/2., height + (max(values)*0.01),
+                f'{height:.1f}',
+                ha='center', va='bottom', fontweight='bold', fontsize=10, color='#374151')
     
-    ax.set_ylabel('Value', fontweight='bold', fontsize=11)
-    ax.set_title('Average Equipment Parameters', fontweight='bold', fontsize=13, pad=15)
-    ax.grid(axis='y', alpha=0.3, linestyle='--')
+    ax.set_ylabel('Value', fontweight='bold', fontsize=11, color='#374151')
+    ax.set_title('Average Equipment Parameters', fontweight='bold', fontsize=14, pad=20, color='#111827')
+    
+    # Styling grid and spines
+    ax.grid(axis='y', alpha=0.2, linestyle='--', color='#9ca3af')
     ax.set_axisbelow(True)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     
     plt.tight_layout()
     
     # Save to buffer
     img_buffer = BytesIO()
-    plt.savefig(img_buffer, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(img_buffer, format='png', dpi=200, bbox_inches='tight')
     img_buffer.seek(0)
     plt.close()
     
@@ -105,28 +130,32 @@ def create_pie_chart(data):
     if not equipment_by_type:
         return None
     
-    fig, ax = plt.subplots(figsize=(6, 4), facecolor='white')
+    fig, ax = plt.subplots(figsize=(7, 5), facecolor='white')
     
     labels = list(equipment_by_type.keys())
     sizes = list(equipment_by_type.values())
-    colors_list = plt.cm.Set3.colors[:len(labels)]
     
+    # Recycle colors if we have more categories than colors
+    colors_list = [COLORS['chart_sequence'][i % len(COLORS['chart_sequence'])] for i in range(len(labels))]
+    
+    # Donut chart style usually looks more modern
     wedges, texts, autotexts = ax.pie(sizes, labels=labels, autopct='%1.1f%%',
                                         colors=colors_list, startangle=90,
-                                        textprops={'fontsize': 9, 'weight': 'bold'})
+                                        pctdistance=0.85, # Move % further out
+                                        textprops={'fontsize': 10, 'weight': 'medium'},
+                                        wedgeprops={'width': 0.5, 'edgecolor': 'white'}) # Create donut hole
     
     # Make percentage text more readable
     for autotext in autotexts:
         autotext.set_color('white')
-        autotext.set_fontsize(9)
-        autotext.set_fontweight('bold')
+        autotext.set_weight('bold')
     
-    ax.set_title('Equipment Distribution by Type', fontweight='bold', fontsize=13, pad=15)
+    ax.set_title('Equipment Distribution by Type', fontweight='bold', fontsize=14, pad=20, color='#111827')
     
     plt.tight_layout()
     
     img_buffer = BytesIO()
-    plt.savefig(img_buffer, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(img_buffer, format='png', dpi=200, bbox_inches='tight')
     img_buffer.seek(0)
     plt.close()
     
@@ -139,34 +168,43 @@ def create_trend_chart(data):
     if not equipment_data:
         return None
     
-    # Limit to first 15 for readability
-    equipment_data = equipment_data[:15]
+    # Limit to first 20 for readability (increased from 15)
+    equipment_data = equipment_data[:20]
     
-    fig, ax = plt.subplots(figsize=(8, 4), facecolor='white')
+    # Wider chart to prevent overlap
+    fig, ax = plt.subplots(figsize=(10, 6), facecolor='white')
     
-    names = [eq['name'][:15] for eq in equipment_data]
+    names = [eq['name'] for eq in equipment_data]
+    # Shorten names if too long
+    short_names = [(n[:12] + '..') if len(n) > 12 else n for n in names]
+    
     flowrates = [eq['flowrate'] for eq in equipment_data]
     pressures = [eq['pressure'] for eq in equipment_data]
     temperatures = [eq['temperature'] for eq in equipment_data]
     
     x = np.arange(len(names))
     
-    ax.plot(x, flowrates, marker='o', color='#ef4444', label='Flowrate', linewidth=2, markersize=6)
-    ax.plot(x, pressures, marker='s', color='#3b82f6', label='Pressure', linewidth=2, markersize=6)
-    ax.plot(x, temperatures, marker='^', color='#22c55e', label='Temperature', linewidth=2, markersize=6)
+    # Use matching colors
+    ax.plot(x, flowrates, marker='o', color=COLORS['primary'], label='Flowrate', linewidth=2, markersize=5)
+    ax.plot(x, pressures, marker='s', color=COLORS['secondary'], label='Pressure', linewidth=2, markersize=5)
+    ax.plot(x, temperatures, marker='^', color=COLORS['accent'], label='Temperature', linewidth=2, markersize=5)
     
     ax.set_xticks(x)
-    ax.set_xticklabels(names, rotation=45, ha='right', fontsize=7)
-    ax.set_ylabel('Value', fontweight='bold', fontsize=10)
-    ax.set_title('Equipment Parameter Trends', fontweight='bold', fontsize=13, pad=15)
-    ax.legend(loc='upper right', fontsize=9, framealpha=0.9)
-    ax.grid(axis='y', alpha=0.3, linestyle='--')
-    ax.set_axisbelow(True)
+    ax.set_xticklabels(short_names, rotation=45, ha='right', fontsize=9, color='#4b5563')
+    ax.set_ylabel('Value', fontweight='bold', fontsize=11, color='#374151')
+    ax.set_title('Equipment Parameter Trends', fontweight='bold', fontsize=14, pad=20, color='#111827')
     
+    ax.legend(loc='upper right', fontsize=10, framealpha=0.9, edgecolor='#e5e7eb')
+    ax.grid(axis='y', alpha=0.2, linestyle='--', color='#9ca3af')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    
+    # Add extra padding at bottom for rotated labels
+    plt.subplots_adjust(bottom=0.25)
     plt.tight_layout()
     
     img_buffer = BytesIO()
-    plt.savefig(img_buffer, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(img_buffer, format='png', dpi=200, bbox_inches='tight')
     img_buffer.seek(0)
     plt.close()
     
@@ -179,7 +217,8 @@ def create_safety_chart(data):
     if not equipment_data:
         return None
     
-    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(9, 3), facecolor='white')
+    # Wider figure to accommodate 3 subplots properly
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(12, 4), facecolor='white')
     
     def categorize_values(values, param):
         safe = sum(1 for v in values if THRESHOLDS[param]['min'] <= v <= THRESHOLDS[param]['max'])
@@ -191,26 +230,40 @@ def create_safety_chart(data):
     pressures = [eq['pressure'] for eq in equipment_data]
     temperatures = [eq['temperature'] for eq in equipment_data]
     
+    safety_colors = [COLORS['success'], COLORS['warning'], COLORS['danger']]
+    categories = ['Safe', 'Warning', 'Critical']
+    
+    # Helper to style subplots
+    def style_safety_subplot(ax, data, title):
+        bars = ax.bar(categories, data, color=safety_colors, width=0.6)
+        ax.set_title(title, fontsize=12, fontweight='bold', color='#111827', pad=10)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.grid(axis='y', alpha=0.2, linestyle='--')
+        
+        # Add count labels
+        for bar in bars:
+            if bar.get_height() > 0:
+                ax.text(bar.get_x() + bar.get_width()/2., bar.get_height(),
+                        str(int(bar.get_height())),
+                        ha='center', va='bottom', fontweight='bold', color='#374151')
+
     # Flowrate safety
     flow_counts = categorize_values(flowrates, 'flowrate')
-    ax1.bar(['Safe', 'Warning', 'Critical'], flow_counts, color=['#22c55e', '#f59e0b', '#ef4444'])
-    ax1.set_title('Flowrate Safety', fontsize=10, fontweight='bold')
-    ax1.set_ylabel('Equipment Count', fontsize=9)
+    style_safety_subplot(ax1, flow_counts, 'Flowrate Safety')
     
     # Pressure safety
-    press_counts = categorize_values(pressures, 'pressure')
-    ax2.bar(['Safe', 'Warning', 'Critical'], press_counts, color=['#22c55e', '#f59e0b', '#ef4444'])
-    ax2.set_title('Pressure Safety', fontsize=10, fontweight='bold')
+    pressure_counts = categorize_values(pressures, 'pressure')
+    style_safety_subplot(ax2, pressure_counts, 'Pressure Safety')
     
     # Temperature safety
     temp_counts = categorize_values(temperatures, 'temperature')
-    ax3.bar(['Safe', 'Warning', 'Critical'], temp_counts, color=['#22c55e', '#f59e0b', '#ef4444'])
-    ax3.set_title('Temperature Safety', fontsize=10, fontweight='bold')
+    style_safety_subplot(ax3, temp_counts, 'Temperature Safety')
     
     plt.tight_layout()
     
     img_buffer = BytesIO()
-    plt.savefig(img_buffer, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(img_buffer, format='png', dpi=200, bbox_inches='tight')
     img_buffer.seek(0)
     plt.close()
     

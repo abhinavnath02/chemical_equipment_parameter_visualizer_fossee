@@ -14,12 +14,13 @@ import SafetyStatusChart from './components/charts/SafetyStatusChart'
 import ParameterDistributionChart from './components/charts/ParameterDistributionChart'
 import CSVFormatGuide from './components/CSVFormatGuide'
 import ThresholdSettings from './components/ThresholdSettings'
+import SmartInsights from './components/SmartInsights'
 import type { AnalysisResult, HistoryItem } from './types'
 import './App.css'
 
 registerChartComponents()
 
-const API_BASE = 'http://127.0.0.1:8000/api'
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api'
 
 function Dashboard() {
   const { accessToken, logout, user } = useAuth()
@@ -267,6 +268,11 @@ function Dashboard() {
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Smart Insights Section */}
+            {result && result.smart_insights && (
+              <SmartInsights insights={result.smart_insights} />
             )}
 
             {/* Charts Section */}

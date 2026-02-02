@@ -14,6 +14,7 @@ class Dataset(models.Model):
     # Store full data as JSON
     equipment_by_type = models.JSONField(default=dict)
     equipment_data = models.JSONField(default=list)
+    smart_insights = models.JSONField(default=dict)
 
     class Meta:
         ordering = ['-uploaded_at']
