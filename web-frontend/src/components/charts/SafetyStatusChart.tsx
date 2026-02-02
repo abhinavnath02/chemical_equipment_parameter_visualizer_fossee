@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Chart } from 'chart.js'
+import { Chart, TooltipItem } from 'chart.js'
 
 interface SafetyStatusChartProps {
   equipmentData: Array<{
@@ -93,7 +93,7 @@ export default function SafetyStatusChart({ equipmentData, thresholds = DEFAULT_
           },
           tooltip: {
             callbacks: {
-              label: (context) => {
+              label: (context: TooltipItem<'bar'>) => {
                 return `${context.dataset.label}: ${context.parsed.y} equipment`
               }
             }

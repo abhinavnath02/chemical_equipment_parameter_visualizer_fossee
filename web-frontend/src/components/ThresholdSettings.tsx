@@ -12,10 +12,60 @@ const DEFAULT_THRESHOLDS: Thresholds = {
   temperature: { min: 50, max: 350, critical_max: 400 }
 }
 
+// Slider ranges for each parameter
+const SLIDER_RANGES = {
+  flowrate: { min: 0, max: 1000 },
+  pressure: { min: 0, max: 2000 },
+  temperature: { min: 0, max: 800 }
+}
+
 interface ThresholdSettingsProps {
   isOpen: boolean
   onClose: () => void
   onSave: (thresholds: Thresholds) => void
+}
+
+interface SliderInputProps {
+  label: string
+  value: number
+  onChange: (value: number) => void
+  min: number
+  max: number
+  accentColor: string
+}
+
+function SliderInput({ label, value, onChange, min, max, accentColor }: SliderInputProps) {
+  const percentage = ((value - min) / (max - min)) * 100
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <label className="text-sm font-medium text-gray-400">{label}</label>
+        <input
+          type="number"
+          value={value}
+          onChange={(e) => {
+            const num = parseFloat(e.target.value)
+            if (!isNaN(num)) onChange(Math.max(min, Math.min(max, num)))
+          }}
+          className="w-20 bg-zinc-900 border border-zinc-600 rounded px-2 py-1 text-white text-sm text-right focus:outline-none focus:border-zinc-400"
+        />
+      </div>
+      <div className="relative">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(e) => onChange(parseFloat(e.target.value))}
+          className="w-full h-2 rounded-lg appearance-none cursor-pointer slider-thumb"
+          style={{
+            background: `linear-gradient(to right, ${accentColor} 0%, ${accentColor} ${percentage}%, #3f3f46 ${percentage}%, #3f3f46 100%)`
+          }}
+        />
+      </div>
+    </div>
+  )
 }
 
 export default function ThresholdSettings({ isOpen, onClose, onSave }: ThresholdSettingsProps) {
@@ -39,17 +89,14 @@ export default function ThresholdSettings({ isOpen, onClose, onSave }: Threshold
     setThresholds(DEFAULT_THRESHOLDS)
   }
 
-  const updateThreshold = (param: keyof Thresholds, type: 'min' | 'max' | 'critical_max', value: string) => {
-    const numValue = parseFloat(value)
-    if (!isNaN(numValue)) {
-      setThresholds(prev => ({
-        ...prev,
-        [param]: {
-          ...prev[param],
-          [type]: numValue
-        }
-      }))
-    }
+  const updateThreshold = (param: keyof Thresholds, type: 'min' | 'max' | 'critical_max', value: number) => {
+    setThresholds(prev => ({
+      ...prev,
+      [param]: {
+        ...prev[param],
+        [type]: value
+      }
+    }))
   }
 
   if (!isOpen) return null
@@ -63,7 +110,7 @@ export default function ThresholdSettings({ isOpen, onClose, onSave }: Threshold
       />
 
       {/* Modal */}
-      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-2xl">
+      <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-3xl">
         <div className="bg-zinc-900 border border-zinc-700 rounded-xl shadow-2xl max-h-[90vh] overflow-y-auto">
           {/* Header */}
           <div className="border-b border-zinc-800 px-6 py-4 flex justify-between items-center">
@@ -101,113 +148,104 @@ export default function ThresholdSettings({ isOpen, onClose, onSave }: Threshold
             </div>
 
             {/* Flowrate Settings */}
-            <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-red-400 mb-4 flex items-center gap-2">
+            <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-5">
+              <h3 className="text-lg font-semibold text-red-400 mb-5 flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-red-400"></span>
                 Flowrate Thresholds
               </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Minimum</label>
-                  <input
-                    type="number"
-                    value={thresholds.flowrate.min}
-                    onChange={(e) => updateThreshold('flowrate', 'min', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-red-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Maximum</label>
-                  <input
-                    type="number"
-                    value={thresholds.flowrate.max}
-                    onChange={(e) => updateThreshold('flowrate', 'max', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-red-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Critical Max</label>
-                  <input
-                    type="number"
-                    value={thresholds.flowrate.critical_max}
-                    onChange={(e) => updateThreshold('flowrate', 'critical_max', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-red-400"
-                  />
-                </div>
+              <div className="grid grid-cols-3 gap-6">
+                <SliderInput
+                  label="Minimum"
+                  value={thresholds.flowrate.min}
+                  onChange={(v) => updateThreshold('flowrate', 'min', v)}
+                  min={SLIDER_RANGES.flowrate.min}
+                  max={SLIDER_RANGES.flowrate.max}
+                  accentColor="#f87171"
+                />
+                <SliderInput
+                  label="Maximum"
+                  value={thresholds.flowrate.max}
+                  onChange={(v) => updateThreshold('flowrate', 'max', v)}
+                  min={SLIDER_RANGES.flowrate.min}
+                  max={SLIDER_RANGES.flowrate.max}
+                  accentColor="#f87171"
+                />
+                <SliderInput
+                  label="Critical Max"
+                  value={thresholds.flowrate.critical_max}
+                  onChange={(v) => updateThreshold('flowrate', 'critical_max', v)}
+                  min={SLIDER_RANGES.flowrate.min}
+                  max={SLIDER_RANGES.flowrate.max}
+                  accentColor="#ef4444"
+                />
               </div>
             </div>
 
             {/* Pressure Settings */}
-            <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-blue-400 mb-4 flex items-center gap-2">
+            <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-5">
+              <h3 className="text-lg font-semibold text-blue-400 mb-5 flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-blue-400"></span>
                 Pressure Thresholds
               </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Minimum</label>
-                  <input
-                    type="number"
-                    value={thresholds.pressure.min}
-                    onChange={(e) => updateThreshold('pressure', 'min', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Maximum</label>
-                  <input
-                    type="number"
-                    value={thresholds.pressure.max}
-                    onChange={(e) => updateThreshold('pressure', 'max', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Critical Max</label>
-                  <input
-                    type="number"
-                    value={thresholds.pressure.critical_max}
-                    onChange={(e) => updateThreshold('pressure', 'critical_max', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-400"
-                  />
-                </div>
+              <div className="grid grid-cols-3 gap-6">
+                <SliderInput
+                  label="Minimum"
+                  value={thresholds.pressure.min}
+                  onChange={(v) => updateThreshold('pressure', 'min', v)}
+                  min={SLIDER_RANGES.pressure.min}
+                  max={SLIDER_RANGES.pressure.max}
+                  accentColor="#60a5fa"
+                />
+                <SliderInput
+                  label="Maximum"
+                  value={thresholds.pressure.max}
+                  onChange={(v) => updateThreshold('pressure', 'max', v)}
+                  min={SLIDER_RANGES.pressure.min}
+                  max={SLIDER_RANGES.pressure.max}
+                  accentColor="#60a5fa"
+                />
+                <SliderInput
+                  label="Critical Max"
+                  value={thresholds.pressure.critical_max}
+                  onChange={(v) => updateThreshold('pressure', 'critical_max', v)}
+                  min={SLIDER_RANGES.pressure.min}
+                  max={SLIDER_RANGES.pressure.max}
+                  accentColor="#3b82f6"
+                />
               </div>
             </div>
 
             {/* Temperature Settings */}
-            <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-green-400 mb-4 flex items-center gap-2">
+            <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-5">
+              <h3 className="text-lg font-semibold text-green-400 mb-5 flex items-center gap-2">
                 <span className="w-3 h-3 rounded-full bg-green-400"></span>
                 Temperature Thresholds
               </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Minimum</label>
-                  <input
-                    type="number"
-                    value={thresholds.temperature.min}
-                    onChange={(e) => updateThreshold('temperature', 'min', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-green-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Maximum</label>
-                  <input
-                    type="number"
-                    value={thresholds.temperature.max}
-                    onChange={(e) => updateThreshold('temperature', 'max', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-green-400"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">Critical Max</label>
-                  <input
-                    type="number"
-                    value={thresholds.temperature.critical_max}
-                    onChange={(e) => updateThreshold('temperature', 'critical_max', e.target.value)}
-                    className="w-full bg-zinc-900 border border-zinc-600 rounded px-3 py-2 text-white focus:outline-none focus:border-green-400"
-                  />
-                </div>
+              <div className="grid grid-cols-3 gap-6">
+                <SliderInput
+                  label="Minimum"
+                  value={thresholds.temperature.min}
+                  onChange={(v) => updateThreshold('temperature', 'min', v)}
+                  min={SLIDER_RANGES.temperature.min}
+                  max={SLIDER_RANGES.temperature.max}
+                  accentColor="#4ade80"
+                />
+                <SliderInput
+                  label="Maximum"
+                  value={thresholds.temperature.max}
+                  onChange={(v) => updateThreshold('temperature', 'max', v)}
+                  min={SLIDER_RANGES.temperature.min}
+                  max={SLIDER_RANGES.temperature.max}
+                  accentColor="#4ade80"
+                />
+                <SliderInput
+                  label="Critical Max"
+                  value={thresholds.temperature.critical_max}
+                  onChange={(v) => updateThreshold('temperature', 'critical_max', v)}
+                  min={SLIDER_RANGES.temperature.min}
+                  max={SLIDER_RANGES.temperature.max}
+                  accentColor="#22c55e"
+                />
               </div>
             </div>
           </div>
@@ -237,6 +275,34 @@ export default function ThresholdSettings({ isOpen, onClose, onSave }: Threshold
           </div>
         </div>
       </div>
+
+      {/* Custom slider styles */}
+      <style>{`
+        .slider-thumb::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #ffffff;
+          cursor: pointer;
+          border: 2px solid #71717a;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          transition: transform 0.1s;
+        }
+        .slider-thumb::-webkit-slider-thumb:hover {
+          transform: scale(1.1);
+        }
+        .slider-thumb::-moz-range-thumb {
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          background: #ffffff;
+          cursor: pointer;
+          border: 2px solid #71717a;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+      `}</style>
     </>
   )
 }

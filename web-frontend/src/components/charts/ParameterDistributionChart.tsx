@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Chart } from 'chart.js'
+import { Chart, TooltipItem } from 'chart.js'
 
 interface ParameterDistributionChartProps {
   equipmentData: Array<{
@@ -168,7 +168,7 @@ export default function ParameterDistributionChart({ equipmentData, parameter, t
           },
           tooltip: {
             callbacks: {
-              label: (context) => `${context.parsed.y} equipment`
+              label: (context: TooltipItem<'bar'>) => `${context.parsed.y} equipment`
             }
           },
           annotation: annotations.length > 0 ? {
