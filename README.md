@@ -269,17 +269,13 @@ python main.py
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open Pull Request
 
-## 📝 License
-
-This project is part of the FOSSEE initiative at IIT Bombay.
-
 ## 👥 Author
 
 Developed by **Abhinav Nath** as part of the Chemical Equipment Parameter Visualizer project for the FOSSEE Fellowship.
 
 ## 🙏 Acknowledgments
 
-- FOSSEE, IIT Bombay
+- FOSSEE
 - Django REST Framework
 - React and Vite teams
 - PyQt5 developers
